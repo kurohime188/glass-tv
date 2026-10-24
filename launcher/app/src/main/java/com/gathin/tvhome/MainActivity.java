@@ -129,6 +129,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private TextView btnWifi;
     private TextView shamsiDate;
     private boolean shamsi;
+    /** Today's prayer times (PrayerTimes), a small two-line block between the clock and the top-right buttons. */
+    private TextView prayerView;
     private String vpnApp;
     private SpringAnimation springX, springY;
     private float glassTargetX, glassTargetY;
@@ -231,6 +233,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         @Override
         public void run() {
             updateShamsiDate();
+            updatePrayer();
             updateWifiLabel();
             refreshPlacesIfDue();
             handler.postDelayed(this, MINUTE_MS);
@@ -313,6 +316,23 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             float dateTop = dateBlock.getTop() + dateBlock.getTranslationY() + dateLine.getTop() + dateLine.getBaseline() + cap.top;
             amPm.setTranslationY(Math.round(capsAtTop + (foot + dateTop) / 2f - foot));
         });
+        // Prayer times, Johor Bahru (JAKIM zone JHR02): top of the screen, right of the clock.
+        // To move the block, change the 0.30f (how far across) and the 46 (dp from the top).
+        prayerView = new TextView(this);
+        prayerView.setTextColor(0xE6FFFFFF);
+        prayerView.setTextSize(14f);
+        prayerView.setTypeface(clock.getTypeface());
+        prayerView.setLineSpacing(0f, 1.25f);
+        prayerView.setShadowLayer(6 * density, 0f, 1f, 0xAA000000);
+        prayerView.setFocusable(false);
+        prayerView.setVisibility(View.GONE);
+        FrameLayout.LayoutParams prayerLp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.TOP | Gravity.START);
+        prayerLp.leftMargin = Math.round(getResources().getDisplayMetrics().widthPixels * 0.30f);
+        prayerLp.topMargin = (int) (46 * density);
+        root.addView(prayerView, prayerLp);
+        updatePrayer();
         vpnApp = cfg.vpnApp;
         moduleCards = cfg.moduleCards;
         hiddenApps = new HashSet<>(cfg.hiddenApps);
@@ -669,6 +689,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         resuming = true;
         reloadApps(true);
         updateShamsiDate();
+        updatePrayer();
         updateWifiLabel();
         updateInputsButton();
         startWallpaperRotation();
@@ -1460,6 +1481,19 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private void updateShamsiDate() {
         if (shamsi) shamsiDate.setText(Shamsi.today());
+    }
+
+    /** Shows the saved prayer times now, and fetches today's in the background when they are not from today. */
+    private void updatePrayer() {
+        if (prayerView == null) return;
+        PrayerTimes.refreshIfDue(this, () -> handler.post(this::showPrayer));
+        showPrayer();
+    }
+
+    private void showPrayer() {
+        CharSequence text = PrayerTimes.format(getApplicationContext());
+        prayerView.setText(text != null ? text : "");
+        prayerView.setVisibility(text != null ? View.VISIBLE : View.GONE);
     }
 
     /** Shows the Wi-Fi network name on the button when we can read it, otherwise the connection type. */
