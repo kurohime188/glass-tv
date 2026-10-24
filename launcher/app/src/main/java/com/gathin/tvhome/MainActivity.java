@@ -318,12 +318,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         });
         // Prayer times, Johor Bahru (JAKIM zone JHR02): top of the screen, right of the clock.
         // To move the block, change the 0.30f (how far across) and the 46 (dp from the top).
+        // A soft dark panel behind it keeps it readable over bright pictures.
         prayerView = new TextView(this);
-        prayerView.setTextColor(0xE6FFFFFF);
-        prayerView.setTextSize(14f);
-        prayerView.setTypeface(clock.getTypeface());
-        prayerView.setLineSpacing(0f, 1.25f);
-        prayerView.setShadowLayer(6 * density, 0f, 1f, 0xAA000000);
+        prayerView.setTextColor(0xFFFFFFFF);
+        prayerView.setTextSize(16f);
+        prayerView.setTypeface(clock.getTypeface(), android.graphics.Typeface.BOLD);
+        prayerView.setLineSpacing(0f, 1.2f);
+        prayerView.setPadding((int) (12 * density), (int) (7 * density), (int) (12 * density), (int) (7 * density));
+        android.graphics.drawable.GradientDrawable prayerBg = new android.graphics.drawable.GradientDrawable();
+        prayerBg.setColor(0x80000000);
+        prayerBg.setCornerRadius(12 * density);
+        prayerView.setBackground(prayerBg);
         prayerView.setFocusable(false);
         prayerView.setVisibility(View.GONE);
         FrameLayout.LayoutParams prayerLp = new FrameLayout.LayoutParams(

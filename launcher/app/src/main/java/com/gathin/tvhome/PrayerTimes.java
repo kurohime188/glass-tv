@@ -39,7 +39,7 @@ final class PrayerTimes {
     private static final long RETRY_MS = 10L * 60 * 1000;
     /** Times older than this are hidden rather than shown wrong. */
     private static final long MAX_AGE_MS = 3L * 24 * 60 * 60 * 1000;
-    private static final int NEXT_COLOR = 0xFFFFC857;
+    private static final int NEXT_COLOR = 0xFFFFD166;
     private static final TimeZone KL = TimeZone.getTimeZone("Asia/Kuala_Lumpur");
 
     private static volatile boolean running;
